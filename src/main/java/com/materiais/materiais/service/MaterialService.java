@@ -28,6 +28,7 @@ public class MaterialService {
                 //adicionar a excessao
     }
 
+    //Method PUT
     @PutMapping("/employees/{id}")
     public Material update(@RequestBody Material newMaterial, @PathVariable String id) {
         return materialRepository.findById(id)
@@ -52,5 +53,9 @@ public class MaterialService {
     public void delete(String id) {
         findById(id);
         this.materialRepository.deleteById(id);
+    }
+
+    public List<Material> findByNome(String nome) {
+        return materialRepository.findByNome(nome);
     }
 }

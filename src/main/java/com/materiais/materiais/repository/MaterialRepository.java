@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface MaterialRepository extends MongoRepository<Material, String> {
 
+    List<Material> findByNome(String nome);
 }

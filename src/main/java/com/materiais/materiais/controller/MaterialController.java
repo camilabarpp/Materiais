@@ -5,6 +5,7 @@ import com.materiais.materiais.service.MaterialService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -12,6 +13,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -103,4 +107,15 @@ public class MaterialController {
         throw new NullPointerException();
     }
 
+    /*
+       *
+       *  Queries
+       *
+     */
+    @RequestMapping(value="/titlesearch", method=RequestMethod.GET)
+    public ResponseEntity<List<Material>> findByNome(@RequestParam(value="nome", defaultValue="") String nome) {
+        nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
+        List<Material> list = materialService.findByNome(nome);
+        return ResponseEntity.ok().body(list);
+    }
 }
