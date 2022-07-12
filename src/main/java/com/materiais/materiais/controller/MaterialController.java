@@ -7,9 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -48,16 +51,19 @@ public class MaterialController {
     //Método POST
     @PostMapping
     public ResponseEntity<Material> create(@RequestBody Material material) {
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(material.getId()).toUri();
         log.info("Material: " + material.getId() + ", " + material.getNome());
-        return ResponseEntity.ok().body(materialService.create(material));
+        return ResponseEntity.created(uri).body(materialService.create(material));
     }
 
 
     //Método DELETE
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable String id) {
         log.info("Material deletado");
         this.materialService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     /*

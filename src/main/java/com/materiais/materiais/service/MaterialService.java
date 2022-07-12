@@ -4,7 +4,9 @@ import com.materiais.materiais.model.Material;
 import com.materiais.materiais.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +48,7 @@ public class MaterialService {
 
     //Método DELETE
     public void delete(String id) {
+        findById(id);
         this.materialRepository.deleteById(id);
     }
 }
