@@ -68,9 +68,9 @@ public class MaterialController {
     }
 
     /*
-     *
-     * Cookies
-     *
+       *
+       * Cookies
+       *
      */
 
     //Cadastrando cookies
@@ -98,9 +98,9 @@ public class MaterialController {
         return "Nenhum cookie encontrado!";
     }
     /*
-     *
-     * ExceptionHandler
-     *
+       *
+       * ExceptionHandler
+       *
      */
     @GetMapping("/")
     public void exceptionShot() {
@@ -112,10 +112,17 @@ public class MaterialController {
        *  Queries
        *
      */
-    @RequestMapping(value="/titlesearch", method=RequestMethod.GET)
+    @GetMapping("/searchNome")
     public ResponseEntity<List<Material>> findByNome(@RequestParam(value="nome", defaultValue="") String nome) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         List<Material> list = materialService.findByNome(nome);
+        return ResponseEntity.ok().body(list);
+    }
+
+    @GetMapping("/searchMarca")
+    public ResponseEntity<List<Material>> findByMarca(@RequestParam(value="marca", defaultValue="") String marca) {
+        marca = URLEncoder.encode(marca, StandardCharsets.UTF_8);
+        List<Material> list = materialService.findByMarca(marca);
         return ResponseEntity.ok().body(list);
     }
 }

@@ -56,6 +56,10 @@ public class MaterialService {
     }
 
     public List<Material> findByNome(String nome) {
-        return materialRepository.findByNome(nome);
+        return materialRepository.findByNomeContainsIgnoreCase(nome);
+    }
+
+    public List<Material> findByMarca(String marca) {
+        return materialRepository.findByMarcaContainsIgnoreCase(marca);
     }
 }
