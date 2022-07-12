@@ -112,17 +112,20 @@ public class MaterialController {
        *  Queries
        *
      */
-    @GetMapping("/searchNome")
+    @GetMapping("/search")
     public ResponseEntity<List<Material>> findByNome(@RequestParam(value="nome", defaultValue="") String nome) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         List<Material> list = materialService.findByNome(nome);
         return ResponseEntity.ok().body(list);
     }
 
-    @GetMapping("/searchMarca")
-    public ResponseEntity<List<Material>> findByMarca(@RequestParam(value="marca", defaultValue="") String marca) {
+    @GetMapping("/fullSearch")
+    public ResponseEntity<List<Material>> fullSearch(
+            @RequestParam(value = "nome", defaultValue="") String nome,
+            @RequestParam(value = "marca", defaultValue="") String marca) {
+        nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         marca = URLEncoder.encode(marca, StandardCharsets.UTF_8);
-        List<Material> list = materialService.findByMarca(marca);
+        List<Material> list = materialService.fullSearch(nome, marca);
         return ResponseEntity.ok().body(list);
     }
 }
