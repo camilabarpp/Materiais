@@ -8,14 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,28 +25,27 @@ public class MaterialController {
     @Autowired
     private MaterialService materialService;
 
-    //Método GET todos
+    //Method GET todos
     @GetMapping
     public ResponseEntity<List<Material>> findAll() {
         log.info("Mostrandos todos os materiais");
         return ResponseEntity.ok().body(materialService.findAll());
     }
 
-    //Método GET por ID
+    //Method GET por ID
     @GetMapping("/{id}")
     public ResponseEntity<Material> findById(@PathVariable String id) {
         log.info(id + " encontrado!");
         return ResponseEntity.ok().body(materialService.findById(id));
     }
 
-    //Método PUT
     @PutMapping("/{id}")
-    public Optional<Material> update(@RequestBody Material newMaterial, @PathVariable String id) {
+    Material update(@RequestBody Material newMaterial, @PathVariable String id) {
         log.info("Material alterado!");
         return this.materialService.update(newMaterial, id);
     }
 
-    //Método POST
+    //Method POST
     @PostMapping
     public ResponseEntity<Material> create(@RequestBody Material material) {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -58,7 +55,7 @@ public class MaterialController {
     }
 
 
-    //Método DELETE
+    //Method DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         log.info("Material deletado");

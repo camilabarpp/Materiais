@@ -4,11 +4,10 @@ import com.materiais.materiais.model.Material;
 import com.materiais.materiais.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MaterialService {
@@ -29,16 +28,19 @@ public class MaterialService {
                 //adicionar a excessao
     }
 
-    //Método PUT
-    public Optional<Material> update(Material newMaterial, String id) {
-        return Optional.of(this.materialRepository.findById(id)
+    @PutMapping("/employees/{id}")
+    public Material update(@RequestBody Material newMaterial, @PathVariable String id) {
+        return materialRepository.findById(id)
                 .map(material -> {
                     material.setNome(newMaterial.getNome());
                     material.setMarca(newMaterial.getMarca());
                     material.setQuantidade(newMaterial.getQuantidade());
+                    return materialRepository.save(material);
+                })
+                .orElseGet(() -> {
+                    newMaterial.setId(id);
                     return materialRepository.save(newMaterial);
-                    }).orElseGet(() -> materialRepository.save(newMaterial)));
-
+                });
     }
 
     //Método POST
