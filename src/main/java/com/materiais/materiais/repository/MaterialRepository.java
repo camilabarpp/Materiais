@@ -10,11 +10,11 @@ import java.util.List;
 @Repository
 public interface MaterialRepository extends MongoRepository<Material, String> {
 
-    //Pesquisa Query Param com 1 parâmeto
+    //Query Param com 1 parâmeto
     @Query("{ 'nome': { $regex: ?0, $options:  'i' } }")
     List<Material> findByNome(String nome);
 
-    //Pesquisa Query Param com mais parâmetos
+    //Query Param com mais parâmetos
     @Query("{ $and: [ " +
             "{ 'nome': { $regex: ?0, $options: 'i' } }," +
             "{ 'marca': { $regex: ?1, $options: 'i' } }]}")

@@ -1,19 +1,23 @@
 package com.materiais.materiais.service;
 
+import com.materiais.materiais.configuration.exception.ResourceNotFoundException;
 import com.materiais.materiais.model.Material;
 import com.materiais.materiais.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 @Service
 public class MaterialService {
 
-    @Autowired
-    private MaterialRepository materialRepository;
+    private final MaterialRepository materialRepository;
+
+    public MaterialService(MaterialRepository materialRepository) {
+        this.materialRepository = materialRepository;
+    }
 
     //Método GET todos
     public List<Material> findAll() {
@@ -24,12 +28,11 @@ public class MaterialService {
     public Material findById(String id) {
         return this.materialRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Material inexistente"));
+                .orElseThrow(() -> new ResourceNotFoundException("ID não encontrado"));
                 //adicionar a excessao
     }
 
     //Method PUT
-    @PutMapping("/employees/{id}")
     public Material update(@RequestBody Material newMaterial, @PathVariable String id) {
         return materialRepository.findById(id)
                 .map(material -> {
@@ -46,7 +49,7 @@ public class MaterialService {
 
     //Método POST
     public Material create(Material material) {
-        return this.materialRepository.insert(material);
+        return materialRepository.insert(material);
     }
 
     //Método DELETE

@@ -5,7 +5,7 @@ import com.materiais.materiais.service.MaterialService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +13,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -29,14 +28,14 @@ public class MaterialController {
     @Autowired
     private MaterialService materialService;
 
-    //Method GET todos
+    //Method GET all
     @GetMapping
     public ResponseEntity<List<Material>> findAll() {
         log.info("Mostrandos todos os materiais");
         return ResponseEntity.ok().body(materialService.findAll());
     }
 
-    //Method GET por ID
+    //Method GET by ID
     @GetMapping("/{id}")
     public ResponseEntity<Material> findById(@PathVariable String id) {
         log.info(id + " encontrado!");
@@ -44,6 +43,7 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
     Material update(@RequestBody Material newMaterial, @PathVariable String id) {
         log.info("Material alterado!");
         return this.materialService.update(newMaterial, id);
@@ -55,6 +55,10 @@ public class MaterialController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(material.getId()).toUri();
         log.info("Material: " + material.getId() + ", " + material.getNome());
+
+        if (material.getNome() == null || material.getMarca() == null || material.getQuantidade() == null) {
+            throw new NullPointerException("Valores nulos ou em branco!");
+        }
         return ResponseEntity.created(uri).body(materialService.create(material));
     }
 
@@ -82,7 +86,6 @@ public class MaterialController {
         //add cookie to response
         response.addCookie(cookie);
 
-        log.info("Adicionando cookies");
         return "Novo cookie criado";
     }
 
@@ -92,19 +95,11 @@ public class MaterialController {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             return Arrays.stream(cookies)
-                    .map(c -> c.getName() + ": " + c.getValue()).collect(Collectors.joining("\n"));
+                    .map(c -> c.getName() + ": " +
+                            c.getValue()).collect(Collectors.joining("\n"));
         }
         log.info("Mostrando todos os cookies!");
         return "Nenhum cookie encontrado!";
-    }
-    /*
-       *
-       * ExceptionHandler
-       *
-     */
-    @GetMapping("/")
-    public void exceptionShot() {
-        throw new NullPointerException();
     }
 
     /*
@@ -112,20 +107,30 @@ public class MaterialController {
        *  Queries
        *
      */
-    @GetMapping("/search")
-    public ResponseEntity<List<Material>> findByNome(@RequestParam(value="nome", defaultValue="") String nome) {
+    //http://localhost:8081/materiais/nome?q=pont
+    @GetMapping("/nome")
+    public ResponseEntity<List<Material>> findByNome(@RequestParam(value="q") String nome) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         List<Material> list = materialService.findByNome(nome);
+
+        if (list.isEmpty()) {
+            throw new NullPointerException();
+        }
+
         return ResponseEntity.ok().body(list);
     }
 
-    @GetMapping("/fullSearch")
-    public ResponseEntity<List<Material>> fullSearch(
-            @RequestParam(value = "nome", defaultValue="") String nome,
-            @RequestParam(value = "marca", defaultValue="") String marca) {
+    @GetMapping("/search")
+    public ResponseEntity<List<Material>> fullSearch(@RequestParam("q") String nome,
+            @RequestParam("s") String marca) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         marca = URLEncoder.encode(marca, StandardCharsets.UTF_8);
-        List<Material> list = materialService.fullSearch(nome, marca);
-        return ResponseEntity.ok().body(list);
+        List<Material> listaDeMateriais = materialService.fullSearch(nome, marca);
+
+        if (listaDeMateriais.isEmpty()) {
+            throw new NullPointerException();
+        }
+
+        return ResponseEntity.ok().body(listaDeMateriais);
     }
 }
