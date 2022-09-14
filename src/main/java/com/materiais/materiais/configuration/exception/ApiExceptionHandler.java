@@ -2,16 +2,11 @@ package com.materiais.materiais.configuration.exception;
 
 import com.materiais.materiais.configuration.errorobject.ErrorObject;
 import com.materiais.materiais.configuration.errorresponse.ErrorResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.NoHandlerFoundException;
-import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,14 +16,14 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
-    public ErrorResponse resourceNotFuondException(ResourceNotFoundException e) {
+    @ExceptionHandler(IdNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse resourceNotFuondException(IdNotFoundException e) {
         return ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .error(List.of(ErrorObject.builder()
                         .message(e.getMessage())
-                        .field(INTERNAL_SERVER_ERROR.name())
+                        .field(NOT_FOUND.name())
                         .parameter(e.getClass().getSimpleName())
                         .build()))
                 .build();

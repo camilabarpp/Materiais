@@ -20,13 +20,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-@AllArgsConstructor
 @RestController
 @RequestMapping("/materiais")
 public class MaterialController {
 
-    @Autowired
-    private MaterialService materialService;
+    private final MaterialService materialService;
+
+    public MaterialController(MaterialService materialService) {
+        this.materialService = materialService;
+    }
 
     //Method GET all
     @GetMapping
@@ -41,6 +43,9 @@ public class MaterialController {
         log.info(id + " encontrado!");
         return ResponseEntity.ok().body(materialService.findById(id));
     }
+
+    //todo nao usar o responseentity
+    //todo mapper, response e request(javax.validations) e entities
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -64,12 +69,20 @@ public class MaterialController {
 
 
     //Method DELETE
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         log.info("Material deletado");
         this.materialService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEmployeesByIDs(@RequestParam List<String> ids){
+        materialService.deleteAllById(ids);
+    }
+
+    //todo deleteall
 
     /*
        *
@@ -121,8 +134,8 @@ public class MaterialController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Material>> fullSearch(@RequestParam("q") String nome,
-            @RequestParam("s") String marca) {
+    public ResponseEntity<List<Material>> fullSearch(@RequestParam(required = false) String nome,
+            @RequestParam(required = false) String marca) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         marca = URLEncoder.encode(marca, StandardCharsets.UTF_8);
         List<Material> listaDeMateriais = materialService.fullSearch(nome, marca);

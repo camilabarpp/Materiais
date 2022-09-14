@@ -1,19 +1,19 @@
 package com.materiais.materiais.service;
 
-import com.materiais.materiais.configuration.exception.ResourceNotFoundException;
+import com.materiais.materiais.configuration.exception.IdNotFoundException;
 import com.materiais.materiais.model.Material;
 import com.materiais.materiais.repository.MaterialRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 @Service
+@NoArgsConstructor
 public class MaterialService {
 
-    private final MaterialRepository materialRepository;
+    private MaterialRepository materialRepository;
 
     public MaterialService(MaterialRepository materialRepository) {
         this.materialRepository = materialRepository;
@@ -28,12 +28,12 @@ public class MaterialService {
     public Material findById(String id) {
         return this.materialRepository
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ID não encontrado"));
+                .orElseThrow(() -> new IdNotFoundException("ID não encontrado"));
                 //adicionar a excessao
     }
 
     //Method PUT
-    public Material update(@RequestBody Material newMaterial, @PathVariable String id) {
+    public Material update(Material newMaterial,String id) {
         return materialRepository.findById(id)
                 .map(material -> {
                     material.setNome(newMaterial.getNome());
@@ -49,7 +49,7 @@ public class MaterialService {
 
     //Método POST
     public Material create(Material material) {
-        return materialRepository.insert(material);
+        return materialRepository.save(material);
     }
 
     //Método DELETE
@@ -65,4 +65,9 @@ public class MaterialService {
     public List<Material> fullSearch(String nome, String marca) {
         return materialRepository.fullSearch(nome, marca);
     }
+
+    public void deleteAllById(List<String> ids){
+        materialRepository.deleteAllById(ids);
+    }
+
 }
