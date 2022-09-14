@@ -3,18 +3,15 @@ package com.materiais.materiais.service;
 import com.materiais.materiais.configuration.exception.IdNotFoundException;
 import com.materiais.materiais.model.Material;
 import com.materiais.materiais.repository.MaterialRepository;
-import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import java.util.List;
 
 @Service
-@NoArgsConstructor
 public class MaterialService {
-
-    private MaterialRepository materialRepository;
-
+    private final MaterialRepository materialRepository;
+    @Autowired
     public MaterialService(MaterialRepository materialRepository) {
         this.materialRepository = materialRepository;
     }
@@ -41,9 +38,8 @@ public class MaterialService {
                     material.setQuantidade(newMaterial.getQuantidade());
                     return materialRepository.save(material);
                 })
-                .orElseGet(() -> {
-                    newMaterial.setId(id);
-                    return materialRepository.save(newMaterial);
+                .orElseThrow(() -> {
+                    throw new IdNotFoundException("ID não enontrado!");
                 });
     }
 
@@ -54,7 +50,6 @@ public class MaterialService {
 
     //Método DELETE
     public void delete(String id) {
-        findById(id);
         this.materialRepository.deleteById(id);
     }
 

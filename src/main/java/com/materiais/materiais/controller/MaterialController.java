@@ -1,18 +1,17 @@
 package com.materiais.materiais.controller;
 
+import com.materiais.materiais.configuration.exception.IdNotFoundException;
 import com.materiais.materiais.model.Material;
 import com.materiais.materiais.service.MaterialService;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -26,26 +25,24 @@ public class MaterialController {
 
     private final MaterialService materialService;
 
+    @Autowired
     public MaterialController(MaterialService materialService) {
         this.materialService = materialService;
     }
 
     //Method GET all
     @GetMapping
-    public ResponseEntity<List<Material>> findAll() {
+    public List<Material> findAll() {
         log.info("Mostrandos todos os materiais");
-        return ResponseEntity.ok().body(materialService.findAll());
+        return materialService.findAll();
     }
 
     //Method GET by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Material> findById(@PathVariable String id) {
+    public Material findById(@PathVariable String id) {
         log.info(id + " encontrado!");
-        return ResponseEntity.ok().body(materialService.findById(id));
+        return materialService.findById(id);
     }
-
-    //todo nao usar o responseentity
-    //todo mapper, response e request(javax.validations) e entities
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -56,15 +53,13 @@ public class MaterialController {
 
     //Method POST
     @PostMapping
-    public ResponseEntity<Material> create(@RequestBody Material material) {
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(material.getId()).toUri();
+    public Material create(@RequestBody Material material) {
         log.info("Material: " + material.getId() + ", " + material.getNome());
 
         if (material.getNome() == null || material.getMarca() == null || material.getQuantidade() == null) {
             throw new NullPointerException("Valores nulos ou em branco!");
         }
-        return ResponseEntity.created(uri).body(materialService.create(material));
+        return materialService.create(material);
     }
 
 
@@ -82,7 +77,6 @@ public class MaterialController {
         materialService.deleteAllById(ids);
     }
 
-    //todo deleteall
 
     /*
        *
@@ -90,7 +84,7 @@ public class MaterialController {
        *
      */
 
-    //Cadastrando cookies
+    //Cadastrando ‘cookies’
    @PostMapping("/cookies/{Material}")
     public String setCookie(HttpServletResponse response, @PathVariable("Material") String username) {
         //create a cookie
@@ -122,28 +116,28 @@ public class MaterialController {
      */
     //http://localhost:8081/materiais/nome?q=pont
     @GetMapping("/nome")
-    public ResponseEntity<List<Material>> findByNome(@RequestParam(value="q") String nome) {
+    public List<Material> findByNome(@RequestParam(value="q") String nome) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         List<Material> list = materialService.findByNome(nome);
 
         if (list.isEmpty()) {
-            throw new NullPointerException();
+            throw new IdNotFoundException("Nome não encontrado!");
         }
 
-        return ResponseEntity.ok().body(list);
+        return list;
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Material>> fullSearch(@RequestParam(required = false) String nome,
+    public List<Material> fullSearch(@RequestParam(required = false) String nome,
             @RequestParam(required = false) String marca) {
         nome = URLEncoder.encode(nome, StandardCharsets.UTF_8);
         marca = URLEncoder.encode(marca, StandardCharsets.UTF_8);
         List<Material> listaDeMateriais = materialService.fullSearch(nome, marca);
 
         if (listaDeMateriais.isEmpty()) {
-            throw new NullPointerException();
+            throw new IdNotFoundException("Nome e marca não encontrados!");
         }
 
-        return ResponseEntity.ok().body(listaDeMateriais);
+        return listaDeMateriais;
     }
 }
